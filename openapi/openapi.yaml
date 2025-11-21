@@ -1,0 +1,257 @@
+openapi: 3.0.3
+info:
+  title: Flight Aggregator API
+  description: A high-performance flight search system that aggregates flight data from multiple airline providers
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+    description: Development server
+
+paths:
+  /api/flights/search:
+    post:
+      summary: Search flights
+      description: Search for flights across multiple airline providers with filtering and sorting options
+      parameters:
+        - name: X-Tracer-ID
+          in: header
+          required: true
+          description: Unique identifier for request tracing
+          schema:
+            type: string
+            format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchRequest'
+      responses:
+        '200':
+          description: Successful flight search
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+        '400':
+          description: Bad request - validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/flights/filters:
+    get:
+      summary: Get available filters
+      description: Get all available filter options for flight search
+      parameters:
+        - name: X-Tracer-ID
+          in: header
+          required: true
+          description: Unique identifier for request tracing
+          schema:
+            type: string
+            format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+      responses:
+        '200':
+          description: Available filter options
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilterOptions'
+        '400':
+          description: Missing tracer ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /health:
+    get:
+      summary: Health check
+      description: Check the health status of the API
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "healthy"
+
+components:
+  schemas:
+    SearchRequest:
+      type: object
+      required:
+        - origin
+        - destination
+        - departureDate
+        - passengers
+        - cabinClass
+      properties:
+        origin:
+          type: string
+          example: "CGK"
+        destination:
+          type: string
+          example: "DPS"
+        departureDate:
+          type: string
+          format: date
+          example: "2025-12-15"
+        returnDate:
+          type: string
+          format: date
+          nullable: true
+        passengers:
+          type: integer
+          minimum: 1
+          example: 1
+        cabinClass:
+          type: string
+          enum: ["economy", "business", "first"]
+          example: "economy"
+        minPrice:
+          type: number
+          minimum: 0
+        maxPrice:
+          type: number
+          minimum: 0
+        maxStops:
+          type: integer
+          minimum: 0
+        airlines:
+          type: array
+          items:
+            type: string
+        minDuration:
+          type: integer
+          minimum: 0
+        maxDuration:
+          type: integer
+          minimum: 0
+        sortBy:
+          type: string
+          enum: ["price_asc", "price_desc", "duration_asc", "duration_desc", "departure_time", "best_value"]
+
+    Flight:
+      type: object
+      properties:
+        id:
+          type: string
+        airline:
+          type: string
+        flightNumber:
+          type: string
+        origin:
+          type: string
+        destination:
+          type: string
+        departureTime:
+          type: string
+          format: date-time
+        arrivalTime:
+          type: string
+          format: date-time
+        duration:
+          type: integer
+        price:
+          type: number
+        currency:
+          type: string
+        stops:
+          type: integer
+        aircraft:
+          type: string
+        provider:
+          type: string
+        bestValue:
+          type: number
+
+    SearchResponse:
+      type: object
+      properties:
+        flights:
+          type: array
+          items:
+            $ref: '#/components/schemas/Flight'
+        total:
+          type: integer
+        query:
+          $ref: '#/components/schemas/SearchRequest'
+
+    FilterOptions:
+      type: object
+      properties:
+        airlines:
+          type: array
+          items:
+            type: string
+          example: ["Garuda Indonesia", "Lion Air", "Batik Air", "AirAsia"]
+        cabinClasses:
+          type: array
+          items:
+            type: string
+          example: ["economy", "business", "first"]
+        sortOptions:
+          type: array
+          items:
+            type: string
+          example: ["price_asc", "price_desc", "duration_asc", "duration_desc", "departure_time", "best_value"]
+        priceRange:
+          type: object
+          properties:
+            min:
+              type: integer
+              example: 500000
+            max:
+              type: integer
+              example: 5000000
+            currency:
+              type: string
+              example: "IDR"
+        durationRange:
+          type: object
+          properties:
+            min:
+              type: integer
+              example: 60
+            max:
+              type: integer
+              example: 600
+            unit:
+              type: string
+              example: "minutes"
+        maxStops:
+          type: integer
+          example: 2
+
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: ["error"]
+        code:
+          type: string
+          enum: ["VALIDATION_ERROR", "INVALID_REQUEST", "MISSING_TRACER_ID", "SERVICE_ERROR", "PROVIDER_ERROR", "INTERNAL_ERROR"]
+        message:
+          type: string

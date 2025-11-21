@@ -1,0 +1,27 @@
+{
+  "validation_error": {
+    "status": "error",
+    "code": "VALIDATION_ERROR",
+    "message": "Origin, destination, and departure date are required"
+  },
+  "invalid_request": {
+    "status": "error",
+    "code": "INVALID_REQUEST", 
+    "message": "Invalid JSON format or missing required fields"
+  },
+  "service_unavailable": {
+    "status": "error",
+    "code": "SERVICE_ERROR",
+    "message": "All flight providers are currently unavailable"
+  },
+  "provider_error": {
+    "status": "error",
+    "code": "PROVIDER_ERROR",
+    "message": "One or more flight providers are temporarily unavailable"
+  },
+  "internal_error": {
+    "status": "error",
+    "code": "INTERNAL_ERROR",
+    "message": "An unexpected error occurred while processing your request"
+  }
+}
