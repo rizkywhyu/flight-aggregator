@@ -33,5 +33,5 @@ k6 run ./loadtest/flight-search.js
 
 ### Custom Load Test
 ```bash
-k6 run --vus 100 --duration 2m flight-search.js
+k6 run --vus 100 --duration 2m ./loadtest/flight-search.js
 ```
