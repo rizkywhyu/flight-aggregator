@@ -11,7 +11,6 @@ type Provider interface {
 }
 
 type ProviderConfig struct {
-	Name           string
-	ResponseDelay  int // milliseconds
-	SuccessRate    float64
+	Name        string
+	SuccessRate float64
 }

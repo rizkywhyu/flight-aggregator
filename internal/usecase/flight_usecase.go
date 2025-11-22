@@ -56,14 +56,7 @@ func (fu *flightUsecase) SearchFlightsExpected(ctx context.Context, req models.S
 		// Calculate best value
 		flights[i].BestValue = fu.calculateBestValue(flights[i])
 		
-		// Set trip type
-		if req.ReturnDate != nil {
-			flights[i].TripType = "roundtrip"
-		} else if len(req.Cities) > 0 {
-			flights[i].TripType = "multicity"
-		} else {
-			flights[i].TripType = "oneway"
-		}
+
 	}
 
 	// First filter by search criteria (origin/destination)

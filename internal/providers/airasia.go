@@ -38,9 +38,8 @@ type AirAsiaResponse struct {
 func NewAirAsiaProvider() *AirAsiaProvider {
 	return &AirAsiaProvider{
 		config: ProviderConfig{
-			Name:          "AirAsia",
-			ResponseDelay: 100,
-			SuccessRate:   0.9,
+			Name:        "AirAsia",
+			SuccessRate: 0.9,
 		},
 		dateUtil: utils.NewDateUtil(),
 	}

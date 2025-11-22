@@ -485,5 +485,5 @@ All error responses follow a standard format:
   "code": "VALIDATION_ERROR",
   "message": "Origin, destination, and departure date are required"
 }
-`
+
 ---

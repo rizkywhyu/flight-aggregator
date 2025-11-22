@@ -76,84 +76,8 @@ func (fs *flightService) GetAllFlights(ctx context.Context, req models.SearchReq
 		return nil, fmt.Errorf("SERVICE_ERROR: All flight providers are currently unavailable")
 	}
 
-	// Handle round-trip search
-	if req.ReturnDate != nil {
-		returnFlights := fs.searchReturnFlights(ctx, req)
-		allFlights = append(allFlights, returnFlights...)
-	}
 
-	// Handle multi-city search
-	if len(req.Cities) > 0 {
-		multiCityFlights := fs.searchMultiCityFlights(ctx, req)
-		allFlights = append(allFlights, multiCityFlights...)
-	}
 
 	return allFlights, nil
 }
 
-func (fs *flightService) searchReturnFlights(ctx context.Context, req models.SearchRequest) []models.Flight {
-	// Create return search request
-	returnReq := models.SearchRequest{
-		Origin:        req.Destination,
-		Destination:   req.Origin,
-		DepartureDate: *req.ReturnDate,
-		Passengers:    req.Passengers,
-		CabinClass:    req.CabinClass,
-	}
-	
-	var returnFlights []models.Flight
-	var mu sync.Mutex
-	var wg sync.WaitGroup
-	
-	for _, provider := range fs.providers {
-		wg.Add(1)
-		go func(p providers.Provider) {
-			defer wg.Done()
-			flights, err := p.GetFlights(ctx, returnReq)
-			if err == nil {
-				mu.Lock()
-				returnFlights = append(returnFlights, flights...)
-				mu.Unlock()
-			}
-		}(provider)
-	}
-	
-	wg.Wait()
-	return returnFlights
-}
-
-func (fs *flightService) searchMultiCityFlights(ctx context.Context, req models.SearchRequest) []models.Flight {
-	var multiCityFlights []models.Flight
-	
-	for i := 0; i < len(req.Cities)-1; i++ {
-		segmentReq := models.SearchRequest{
-			Origin:        req.Cities[i],
-			Destination:   req.Cities[i+1],
-			DepartureDate: req.DepartureDate,
-			Passengers:    req.Passengers,
-			CabinClass:    req.CabinClass,
-		}
-		
-		var segmentFlights []models.Flight
-		var mu sync.Mutex
-		var wg sync.WaitGroup
-		
-		for _, provider := range fs.providers {
-			wg.Add(1)
-			go func(p providers.Provider) {
-				defer wg.Done()
-				flights, err := p.GetFlights(ctx, segmentReq)
-				if err == nil {
-					mu.Lock()
-					segmentFlights = append(segmentFlights, flights...)
-					mu.Unlock()
-				}
-			}(provider)
-		}
-		
-		wg.Wait()
-		multiCityFlights = append(multiCityFlights, segmentFlights...)
-	}
-	
-	return multiCityFlights
-}

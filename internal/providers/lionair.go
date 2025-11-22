@@ -52,9 +52,8 @@ type LionAirResponse struct {
 func NewLionAirProvider() *LionAirProvider {
 	return &LionAirProvider{
 		config: ProviderConfig{
-			Name:          "Lion Air",
-			ResponseDelay: 150,
-			SuccessRate:   1.0,
+			Name:        "Lion Air",
+			SuccessRate: 1.0,
 		},
 		dateUtil: utils.NewDateUtil(),
 	}

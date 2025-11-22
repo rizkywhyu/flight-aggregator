@@ -42,9 +42,8 @@ type BatikAirResponse struct {
 func NewBatikAirProvider() *BatikAirProvider {
 	return &BatikAirProvider{
 		config: ProviderConfig{
-			Name:          "Batik Air",
-			ResponseDelay: 300,
-			SuccessRate:   1.0,
+			Name:        "Batik Air",
+			SuccessRate: 1.0,
 		},
 		dateUtil: utils.NewDateUtil(),
 	}

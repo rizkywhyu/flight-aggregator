@@ -6,14 +6,12 @@ import (
 )
 
 type SearchRequest struct {
-	Origin        string   `json:"origin" validate:"required"`
-	Destination   string   `json:"destination" validate:"required"`
-	DepartureDate string   `json:"departureDate" validate:"required"`
-	ReturnDate    *string  `json:"returnDate"`
-	Passengers    int      `json:"passengers" validate:"required,min=1"`
-	CabinClass    string   `json:"cabinClass" validate:"required"`
-	Cities        []string `json:"cities,omitempty"` // For multi-city search
-	TripType      string   `json:"tripType,omitempty"` // "oneway", "roundtrip", "multicity"
+	Origin        string  `json:"origin" validate:"required"`
+	Destination   string  `json:"destination" validate:"required"`
+	DepartureDate string  `json:"departureDate" validate:"required"`
+	ReturnDate    *string `json:"returnDate"`
+	Passengers    int     `json:"passengers" validate:"required,min=1"`
+	CabinClass    string  `json:"cabinClass" validate:"required"`
 }
 
 type FilterOptions struct {
@@ -42,10 +40,8 @@ type Flight struct {
 	Aircraft      string    `json:"aircraft"`
 	Provider      string    `json:"provider"`
 	BestValue     float64   `json:"bestValue"`
-	TripType      string    `json:"tripType,omitempty"` // "oneway" or "roundtrip"
 }
 
-// Expected format structures
 type SearchCriteria struct {
 	Origin        string `json:"origin"`
 	Destination   string `json:"destination"`

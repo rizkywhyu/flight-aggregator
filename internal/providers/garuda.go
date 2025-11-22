@@ -46,9 +46,8 @@ type GarudaResponse struct {
 func NewGarudaProvider() *GarudaProvider {
 	return &GarudaProvider{
 		config: ProviderConfig{
-			Name:          "Garuda Indonesia",
-			ResponseDelay: 75, // Will be randomized in GetFlights
-			SuccessRate:   1.0,
+			Name:        "Garuda Indonesia",
+			SuccessRate: 1.0,
 		},
 		dateUtil: utils.NewDateUtil(),
 	}
