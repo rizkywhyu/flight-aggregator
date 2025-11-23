@@ -2,10 +2,11 @@ package middleware
 
 import (
 	"context"
+	"flight-aggregator/internal/config"
 	"flight-aggregator/internal/models"
 	"fmt"
+	"log"
 	"net/http"
-	"os"
 	"strconv"
 	"time"
 
@@ -20,12 +21,27 @@ type RedisSlidingWindow struct {
 }
 
 func NewRedisSlidingWindowRateLimit() echo.MiddlewareFunc {
-	cfg := loadConfig()
+	cfg := config.MustLoad()
 	
-	rdb := redis.NewClient(&redis.Options{
-		Addr: cfg.RedisAddr,
-		DB:   0,
-	})
+	// Parse Redis URL if it contains credentials
+	var rdb *redis.Client
+	if len(cfg.RedisAddr) > 8 && cfg.RedisAddr[:8] == "redis://" {
+		opt, err := redis.ParseURL(cfg.RedisAddr)
+		if err != nil {
+			log.Printf("Failed to parse Redis URL: %v, falling back to simple connection", err)
+			rdb = redis.NewClient(&redis.Options{
+				Addr: "localhost:6379",
+				DB:   0,
+			})
+		} else {
+			rdb = redis.NewClient(opt)
+		}
+	} else {
+		rdb = redis.NewClient(&redis.Options{
+			Addr: cfg.RedisAddr,
+			DB:   0,
+		})
+	}
 
 	rsw := &RedisSlidingWindow{
 		client: rdb,
@@ -82,43 +98,5 @@ func (rsw *RedisSlidingWindow) Allow(ctx context.Context, key string) (bool, err
 	return count < int64(rsw.limit), nil
 }
 
-type rateLimitConfig struct {
-	RedisAddr       string
-	RateLimitCount  int
-	RateLimitWindow time.Duration
-}
 
-func loadConfig() *rateLimitConfig {
-	return &rateLimitConfig{
-		RedisAddr:       getEnv("REDIS_ADDR", "localhost:6379"),
-		RateLimitCount:  getEnvInt("RATE_LIMIT_COUNT", 100),
-		RateLimitWindow: getEnvDuration("RATE_LIMIT_WINDOW", "1m"),
-	}
-}
-
-func getEnv(key, defaultValue string) string {
-	if value := os.Getenv(key); value != "" {
-		return value
-	}
-	return defaultValue
-}
-
-func getEnvInt(key string, defaultValue int) int {
-	if value := os.Getenv(key); value != "" {
-		if intValue, err := strconv.Atoi(value); err == nil {
-			return intValue
-		}
-	}
-	return defaultValue
-}
-
-func getEnvDuration(key string, defaultValue string) time.Duration {
-	if value := os.Getenv(key); value != "" {
-		if duration, err := time.ParseDuration(value); err == nil {
-			return duration
-		}
-	}
-	duration, _ := time.ParseDuration(defaultValue)
-	return duration
-}
 

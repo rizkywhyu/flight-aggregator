@@ -49,7 +49,7 @@ func main() {
 	health.GET("", flightController.HealthCheck)
 
 	// Load config and start server
-	cfg := config.Load()
+	cfg := config.MustLoad()
 	port := ":" + cfg.Port
 	log.Println("Starting flight aggregator server on", port)
 	log.Printf("Rate limit: %d requests per %v", cfg.RateLimitCount, cfg.RateLimitWindow)

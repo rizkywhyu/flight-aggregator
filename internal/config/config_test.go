@@ -7,7 +7,10 @@ import (
 )
 
 func TestLoad(t *testing.T) {
-	config := Load()
+	config, err := Load()
+	if err != nil {
+		t.Fatalf("Expected no error, got %v", err)
+	}
 	
 	if config.Port != "8080" {
 		t.Errorf("Expected default port 8080, got %s", config.Port)
@@ -18,8 +21,8 @@ func TestLoad(t *testing.T) {
 	}
 }
 
-func TestGetEnv(t *testing.T) {
-	result := getEnv("NONEXISTENT_KEY", "default")
+func TestGetEnvString(t *testing.T) {
+	result := getEnvString("NONEXISTENT_KEY", "default")
 	if result != "default" {
 		t.Errorf("Expected 'default', got %s", result)
 	}
@@ -36,7 +39,7 @@ func TestGetEnvInt(t *testing.T) {
 }
 
 func TestGetEnvDuration(t *testing.T) {
-	result := getEnvDuration("NONEXISTENT_DURATION", "5m")
+	result := getEnvDuration("NONEXISTENT_DURATION", 5*time.Minute)
 	expected := 5 * time.Minute
 	if result != expected {
 		t.Errorf("Expected %v, got %v", expected, result)

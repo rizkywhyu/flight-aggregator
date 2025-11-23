@@ -21,7 +21,7 @@ type flightService struct {
 }
 
 func NewFlightService() FlightService {
-	cfg := config.Load()
+	cfg := config.MustLoad()
 	return &flightService{
 		providers: []providers.Provider{
 			providers.NewGarudaProvider(),

@@ -92,7 +92,7 @@ Create `.env` file (optional):
 PORT=8080
 
 # Redis Configuration
-REDIS_ADDR=localhost:6379
+REDIS_ADDR=redis://secretpassword@localhost:6379
 
 # Rate Limiting
 RATE_LIMIT_COUNT=100

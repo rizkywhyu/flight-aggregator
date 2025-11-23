@@ -29,7 +29,7 @@ func NewFlightUsecase(flightService service.FlightService) FlightUsecase {
 		flightService: flightService,
 		dateUtil:      utils.NewDateUtil(),
 		currencyUtil:  utils.NewCurrencyUtil(),
-		config:        config.Load(),
+		config:        config.MustLoad(),
 	}
 }
 
